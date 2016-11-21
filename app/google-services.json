@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "922611766891",
+    "firebase_url": "https://ivory-plane-150106.firebaseio.com",
+    "project_id": "ivory-plane-150106",
+    "storage_bucket": "ivory-plane-150106.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:922611766891:android:979dd7e5bdce58d8",
+        "android_client_info": {
+          "package_name": "com.hq.picup"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "922611766891-9currb7i8v1khtbk2jh0n1lsrhjtl0je.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7VvVTlRUqujT_Z_aK5FhGAfyGh7s9e5Q"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

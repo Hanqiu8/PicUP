@@ -1,0 +1,38 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MapScreen" >
+
+    <!--<ImageView-->
+        <!--android:layout_width="132dp"-->
+        <!--android:layout_height="111dp"-->
+        <!--android:src="@android:drawable/ic_menu_camera"-->
+
+        <!--android:id="@+id/mTakePhoto"-->
+        <!--android:layout_gravity="bottom|right"-->
+        <!--tools:paddingRight="20dp"-->
+        <!--android:paddingBottom="15dp" />-->
+
+    <Button android:id="@+id/button1"
+        android:background="@android:drawable/ic_menu_camera"
+
+        android:layout_height="98dp"
+        android:layout_width="98dp" />
+
+    <ImageView android:id="@+id/testCamView"
+        android:layout_height="178dp"
+        android:src="@drawable/newlog"
+        android:layout_width="248dp"
+        android:layout_gravity="bottom|right"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" />
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.hq.picup.MapScreen" />
+</FrameLayout>
