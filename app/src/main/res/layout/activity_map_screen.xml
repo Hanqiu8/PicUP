@@ -17,7 +17,7 @@
 
     <Button android:id="@+id/button1"
         android:background="@android:drawable/ic_menu_camera"
-
+        android:layout_gravity="bottom|right"
         android:layout_height="98dp"
         android:layout_width="98dp" />
 
@@ -25,7 +25,7 @@
         android:layout_height="178dp"
         android:src="@drawable/newlog"
         android:layout_width="248dp"
-        android:layout_gravity="bottom|right"
+
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true" />
 

@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
 
     defaultConfig {
         applicationId "com.hq.picup"
         minSdkVersion 19
-        targetSdkVersion 22
+        targetSdkVersion 23
         versionCode 1
         versionName "1.0"
     }
@@ -17,12 +17,34 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    android {
+        packagingOptions {
+            exclude 'META-INF/DEPENDENCIES'
+            exclude 'META-INF/NOTICE'
+            exclude 'META-INF/LICENSE'
+            exclude 'META-INF/LICENSE.txt'
+            exclude 'META-INF/NOTICE.txt'
+        }
+    }
+
 }
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:22.2.0'
-    compile 'com.google.android.gms:play-services:9.0.0'
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:23.2.0'
+    testCompile 'junit:junit:4.12'
+    compile 'com.google.android.gms:play-services:9.2.0'
+    compile 'com.google.firebase:firebase-database:9.2.0'
+    compile 'com.firebase:firebase-client-android:2.3.1'
+    compile 'com.firebaseui:firebase-ui:0.4.3'
+    compile 'com.google.firebase:firebase-storage:9.2.0'
+    compile 'com.squareup.picasso:picasso:2.5.2'
+
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
 }
 
 apply plugin: 'com.google.gms.google-services'
