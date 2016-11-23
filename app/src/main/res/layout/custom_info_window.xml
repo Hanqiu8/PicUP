@@ -2,38 +2,41 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:weightSum="1">
+    android:weightSum="1"
+    android:background="@color/buttonTextColor"
+    android:layout_width="wrap_content">
 
 
     <ImageView
         android:id="@+id/badge"
-        android:layout_width="200dp"
         android:layout_height="300dp"
-        android:layout_marginRight="5dp"
+        android:layout_marginRight="0dp"
         android:adjustViewBounds="true"
         android:layout_weight="0.07"
-        android:elevation="9dp">
+        android:elevation="9dp"
+        android:layout_width="200dp">
     </ImageView>
+
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:gravity="center_vertical">
 
         <TextView
             android:id="@+id/title"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:singleLine="true"
             android:textColor="#ff000000"
-            android:textSize="14dp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textSize="26sp" />
 
         <TextView
             android:id="@+id/snippet"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="#ff7f7f7f"
             android:textSize="14dp" />

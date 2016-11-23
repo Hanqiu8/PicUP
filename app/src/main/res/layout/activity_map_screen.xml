@@ -23,19 +23,12 @@
 
     <Button android:id="@+id/button2"
         android:layout_marginRight="98dp"
-        android:background="@drawable/com_facebook_button_like_icon_selected"
+        android:background="@drawable/uparrow"
         android:layout_gravity="bottom|right"
-        android:layout_height="98dp"
-        android:layout_width="98dp"
-        android:elevation="4dp" />
-
-    <ImageView android:id="@+id/testCamView"
-        android:layout_height="178dp"
-        android:src="@drawable/newlog"
-        android:layout_width="248dp"
-
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true" />
+        android:layout_height="80dp"
+        android:layout_width="78dp"
+        android:elevation="4dp"
+        android:layout_marginBottom="9dp" />
 
     <fragment
         android:id="@+id/map"
