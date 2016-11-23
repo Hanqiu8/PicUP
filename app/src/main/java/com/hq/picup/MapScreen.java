@@ -25,8 +25,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -42,6 +44,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -61,6 +64,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
 
+import static com.google.android.gms.analytics.internal.zzy.e;
 import static com.hq.picup.R.id.map;
 
 //, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
@@ -79,6 +83,7 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
     private String mCurrentPhotoPath;
     public ImageView mImageView;
     private Button mButton;
+    private Button mUpVote;
     private static final int CAMERA_REQUEST = 1888;
     private Location here;
     private StorageReference mStorage;
@@ -87,12 +92,17 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
     private Firebase mRef;
     private int stupidhack = 0;
     private ImageLoader imageLoader;
-    private Hashtable<String, String> markerList;
+    private Hashtable<Marker, String> markerList;
     private Marker marker;
+
     private DisplayImageOptions options;
 
     private final LatLng HAMBURG = new LatLng(53.558, 9.927);
     private final LatLng KIEL = new LatLng(53.551, 9.993);
+
+
+    private int picNum=0;
+    private boolean bigBool = true;
 
 
     private void initImageLoader() {
@@ -130,6 +140,8 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
         initImageLoader();
         mImageView = (ImageView) findViewById(R.id.testCamView);
         mButton = (Button) findViewById(R.id.button1);
+        mUpVote = (Button) findViewById(R.id.button2);
+        mUpVote.setVisibility(View.GONE);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         criteria = new Criteria();
         mImageView.bringToFront();
@@ -138,10 +150,45 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
         Firebase.setAndroidContext(this);
         mRef = new Firebase("https://ivory-plane-150106.firebaseio.com/");
 
-        markerList = new Hashtable<String,String>();
+        markerList = new Hashtable<Marker,String>();
         //should map marker to 
 
         imageLoader  = ImageLoader.getInstance();
+
+        getTotalNum();
+
+
+        //Toast.makeText(MapScreen.this, picNum + "", Toast.LENGTH_LONG).show();
+
+            mRef.addListenerForSingleValueEvent(new com.firebase.client.ValueEventListener() {
+
+                @Override
+                public void onDataChange(com.firebase.client.DataSnapshot dataSnapshot) {
+                    PictureInfo value;
+                    try {
+                        for(DataSnapshot child : dataSnapshot.getChildren()){
+                            value = child.getValue(PictureInfo.class);
+
+
+                            LatLng temp = new LatLng(value.getLongitude(),value.getLatitude());
+                            Toast.makeText(MapScreen.this, "" + temp.latitude, Toast.LENGTH_LONG).show();
+                            Marker test = mMap.addMarker(new MarkerOptions().position(temp)
+                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                            test.setTag(value.getUrl());
+
+                        }
+                    } catch (Exception e) {
+                        Toast.makeText(MapScreen.this, "Nothing found", Toast.LENGTH_LONG).show();
+
+                    }//mRef.child("Pic1").child("vote").setValue(value.getVote()+1);
+
+                }
+
+                @Override
+                public void onCancelled(FirebaseError firebaseError) {
+
+                }
+            });
 
 
         mButton.setOnClickListener(new View.OnClickListener() {
@@ -196,33 +243,7 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
 //                    .addApi(LocationServices.API)
 //                    .build();
 //        }
-//    @Override
-//    protected void onStart(){
-//        super.onStart();
-//        mGoogleApiClient.connect();
-//    }
-//
-//    @Override
-//    protected void onStop() {
-//        mGoogleApiClient.disconnect();
-//        super.onStop();
-//    }
-//
-//    @Override
-//    public void onConnectionSuspended(int n){
-//        //ummm
-//        mGoogleApiClient.connect();
-//    }
-//    @Override
-//    public void onConnected(Bundle b){
-//        myLocation = LocationServices.FusedLocationApi.getLastLocation(
-//                mGoogleApiClient);
-//    }
-//
-//    @Override
-//    public void onConnectionFailed(ConnectionResult r){
-//        Toast.makeText(this, "Connection Failed", Toast.LENGTH_LONG).show();
-//    }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -346,7 +367,10 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
 //                image.setImageResource(R.drawable.com_facebook_button_like_icon_selected);
 //            }
             //TODO: Properly get the uri
-            mStorage.child("images").child("0").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            getTotalNum();
+            String wth = (String) marker.getTag();
+            //TODO: map each of the markers to the picnum not just get the most recent one
+            mStorage.child("images").child(wth).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                 @Override
                 public void onSuccess(Uri uri) {
                     if (uri != null) {
@@ -385,11 +409,29 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
         }
     }
 
+    public void getTotalNum(){
+
+        com.firebase.client.DataSnapshot tempSnapshot;
+        mRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                picNum = (int) dataSnapshot.getChildrenCount();
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+    }
+
     public void addPicture(PictureInfo picture){
         mRef.addListenerForSingleValueEvent(new com.firebase.client.ValueEventListener() {
             @Override
             public void onDataChange(com.firebase.client.DataSnapshot dataSnapshot) {
                 mCount = dataSnapshot.getChildrenCount();
+                picNum = (int) mCount;
+                //This should be fine in our case as long as we don't upload over 2 billion images
 
                 //Get a list of all data
                 for (com.firebase.client.DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
@@ -404,7 +446,7 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
 
             }
         });
-        mRef.child("Pic"+mCount).setValue(picture);
+        mRef.child("Pic"+(picNum)).setValue(picture);
     }
 
     private File createImageFile() throws IOException {
@@ -434,10 +476,10 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
                     mImageView.setImageBitmap(mImageBitmap);
 
 
-
                     //Uri file = data.getData();
                     Uri file = Uri.fromFile(photoFile);
-                    StorageReference filepath = mStorage.child("images").child(mCount+"");
+                    getTotalNum();
+                    StorageReference filepath = mStorage.child("images").child(picNum+"");
                     //Uri file = Uri.fromFile(new File(mCurrentPhotoPath));
                     //Uri file = Uri.parse(mCurrentPhotoPath);
 
@@ -445,8 +487,14 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
                           @Override
                           public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                               Toast.makeText(MapScreen.this, "Upload Done", Toast.LENGTH_LONG).show();
-                              PictureInfo taken = new PictureInfo(mCurrentPhotoPath,here.getLatitude(),here.getLongitude(), 0);
+                              PictureInfo taken = new PictureInfo(""+picNum,here.getLatitude(),here.getLongitude(), 0);
                               addPicture(taken);
+
+                              LatLng temp = new LatLng(here.getLatitude(), here.getLongitude());
+                              Marker test = mMap.addMarker(new MarkerOptions().position(temp)
+                                      .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                              test.setTag(picNum+"");
+
                           }
                       }).addOnFailureListener(new OnFailureListener() {
                           @Override
@@ -472,10 +520,9 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
 //
 //            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(HAMBURG, 15));
 //            googleMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
-                    LatLng temp = new LatLng(here.getLatitude(), here.getLongitude());
-                    mMap.addMarker(new MarkerOptions().position(temp)
-
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+//                    LatLng temp = new LatLng(here.getLatitude(), here.getLongitude());
+//                    mMap.addMarker(new MarkerOptions().position(temp)
+//                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
 
                 } catch (IOException e) {
                     e.printStackTrace();//CameraScreen.this.finish();
