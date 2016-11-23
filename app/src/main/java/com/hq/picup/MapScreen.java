@@ -71,21 +71,23 @@ import static com.hq.picup.R.id.map;
 //, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
 public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
 
+    private long SURVIVAL_TIME = 2000000000;
+    final private long UPVOTE_SUPPLEMENT = 10000;
     private GoogleMap mMap;
     //    private GoogleApiClient mGoogleApiClient;
     private long mCount;
     public static final String PREFS_NAME = "voteDataFile";
-    private Location myLocation;
+
     private Criteria criteria;
     private LocationManager locationManager;
 //    private ImageView cameraButton;
     static final int REQUEST_IMAGE_CAPTURE = 1;
-    private Bitmap mImageBitmap;
+//    private Bitmap mImageBitmap;
     private String mCurrentPhotoPath;
-    public ImageView mImageView;
+//    public ImageView mImageView;
     private Button mButton;
     private Button mUpVote;
-    private static final int CAMERA_REQUEST = 1888;
+
     private Location here;
     private StorageReference mStorage;
     private UploadTask uploadTask;
@@ -93,21 +95,17 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
     private Firebase mRef;
     private int stupidhack = 0;
     private ImageLoader imageLoader;
-    private Hashtable<String, String> voteList;
+//    private Hashtable<String, String> voteList;
     private Marker marker;
     private SharedPreferences.Editor editor;
 
 
     private SharedPreferences prefSplash;
 
-    private DisplayImageOptions options;
-
-    private final LatLng HAMBURG = new LatLng(53.558, 9.927);
-    private final LatLng KIEL = new LatLng(53.551, 9.993);
-
+//    private DisplayImageOptions options;
 
     private int picNum=0;
-    private boolean bigBool = true;
+
 
 
     private void initImageLoader() {
@@ -157,26 +155,26 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
         Firebase.setAndroidContext(this);
         mRef = new Firebase("https://ivory-plane-150106.firebaseio.com/");
 
-        voteList = new Hashtable<String, String>();
+//        voteList = new Hashtable<String, String>();
         //should map marker to 
 
         imageLoader  = ImageLoader.getInstance();
-
+        //gets the number of elements stored online
         getTotalNum();
 
-
         //Toast.makeText(MapScreen.this, picNum + "", Toast.LENGTH_LONG).show();
-
+        //This gets all the children from Firebase
             mRef.addListenerForSingleValueEvent(new com.firebase.client.ValueEventListener() {
 
                 @Override
                 public void onDataChange(com.firebase.client.DataSnapshot dataSnapshot) {
                     PictureInfo value;
                     try {
+                        //Iterate through all the children and determine which markers to display
                         for(DataSnapshot child : dataSnapshot.getChildren()){
                             value = child.getValue(PictureInfo.class);
-
-                            if( ((System.currentTimeMillis() / 1000L) - value.getTime()-(10000*value.getVote()))<1000000000 ) {
+                            //if the marker is not beyond the survival time
+                            if( ((System.currentTimeMillis() / 1000L) - value.getTime()-(UPVOTE_SUPPLEMENT*value.getVote()))<SURVIVAL_TIME ) {
                                 LatLng temp = new LatLng(value.getLongitude(), value.getLatitude());
 
                                 Marker test = mMap.addMarker(new MarkerOptions().position(temp).title(Integer.toString(value.getVote()))
@@ -197,7 +195,7 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
                 }
             });
 
-
+        //Opens camera to take picture and returns it in the onActivitySucceeded method
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -217,30 +215,7 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
                 }
             }
         });
-//        cameraButton.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                Toast.makeText(MapScreen.this, "Start Camera", Toast.LENGTH_SHORT).show();
-////                Intent startCameraIntent = new Intent(MapScreen.this, CameraScreen.class);
-////                MapScreen.this.startActivity(startCameraIntent);
-////                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-//                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//                if (cameraIntent.resolveActivity(getPackageManager()) != null) {
-//                    File photoFile = null;
-//                    try {
-//                        photoFile = createImageFile();
-//                    } catch (IOException e) {
-//                        Toast.makeText(MapScreen.this, "wtf", Toast.LENGTH_SHORT).show();
-//                    }
-//                    if (photoFile != null) {
-//                        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-//                        startActivityForResult(cameraIntent, REQUEST_IMAGE_CAPTURE);
-//                    }
-//                }
 //
-//                return true;
-//            }
-//        });
 
     }
 //        if (mGoogleApiClient == null) {
@@ -251,7 +226,7 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
 //                    .build();
 //        }
 
-
+    //Runs after map is loaded
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -266,9 +241,8 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
             }
         }
         if (mMap != null) {
+            //Moves app to current location
             mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
-
-
 
 
             mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
@@ -278,6 +252,7 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
                 public void onMyLocationChange(Location arg0) {
                     // TODO Auto-generated method stub
                     here = arg0;
+                    //only updates location once at beginnning of launch
                     if(stupidhack == 0) {
                         stupidhack++;
                         CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(arg0.getLatitude(), arg0.getLongitude()));
@@ -304,7 +279,7 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
 //            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
 //        }
     }
-
+//This class used to implement the info windows
     private class MarkerCallback implements Callback {
         Marker marker=null;
 
@@ -353,7 +328,7 @@ public class MapScreen extends FragmentActivity implements OnMapReadyCallback {
 
             final ImageView image = ((ImageView) view.findViewById(R.id.badge));
 
-            //TODO:show the upvote
+            //Finds the image from firebase and stores it
             getTotalNum();
             String wth = (String) marker.getTag();
             mUpVote.setVisibility(View.VISIBLE);
